@@ -79,3 +79,8 @@ button:hover {
   margin: 5px;
 
 }
+    .success {
+      color: #2e7d32;
+      font-weight: bold;
+      margin-top: 16px;
+    }

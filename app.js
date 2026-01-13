@@ -60,11 +60,11 @@ async function loadStatus(uid) {
   const checkinArea = document.getElementById("checkinArea");
 
   if (!data.verified && !data.is_active) {
-    statusText.innerHTML = "🔒 已通知聯絡人綁定，請付費啟用";
+    statusText.innerHTML = `🔒 已通知聯絡人 ${data.contact_email} ，請付費啟用`;
     checkinArea.classList.add("hidden");
   } 
   else if (data.verified && !data.is_active) {
-    statusText.innerHTML = "🔒 聯絡人已成功綁定，請付費啟用";
+    statusText.innerHTML = `<span class="success">🔒 聯絡人  ${data.contact_email} 已成功綁定</span>，請付費啟用`;
     checkinArea.classList.add("hidden");
   } 
   else if (data.verified && data.is_active) {
