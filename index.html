@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <title>緊急聯絡人設定</title>
+  <link rel="stylesheet" href="style.css">
+
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-analytics.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+    apiKey: "AIzaSyA8eWS7fwj5eyzK21YlFRov1n4oIVmmkHY",
+    authDomain: "call-3ba0f.firebaseapp.com",
+    projectId: "call-3ba0f",
+    storageBucket: "call-3ba0f.firebasestorage.app",
+    messagingSenderId: "157503642050",
+    appId: "1:157503642050:web:8687d0340afa95cc85de5b",
+    measurementId: "G-Y6BEGYPW7R"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
+</script>
+
+</head>
+<body>
+  <div class="container">
+    <h1>設定緊急聯絡人</h1>
+
+    <div id="form-section">
+      <label>你的姓名</label>
+      <input type="text" id="name" placeholder="請輸入姓名">
+
+      <label>聯絡人 Email</label>
+      <input type="email" id="contactEmail" placeholder="請輸入聯絡人 Email">
+
+      <button id="submitBtn">送出</button>
+      <p id="message" class="message"></p>
+    </div>
+
+    <!-- 狀態顯示 -->
+    <div id="status-section" class="hidden">
+      <div id="statusText" class="status-box"></div>
+      <div id="checkinArea" class="hidden">
+        <p>上次打卡時間：<span id="lastCheckin">--</span></p>
+        <button id="checkinBtn">我今天安全</button>
+      </div>
+    </div>
+
+    <!-- 流程教學 -->
+    <div class="steps">
+      <hr>
+      <div class="step">1. 填寫資料</div>
+      🔽
+      <div class="step">2. 付費啟用</div>
+      🔽
+      <div class="step">3. 每日簽到</div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
