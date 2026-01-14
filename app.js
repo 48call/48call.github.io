@@ -1,4 +1,10 @@
-const API_BASE = "https://us-central1-call-3ba0f.cloudfunctions.net";
+const API = {
+  createUser: "https://createuser-5dxkydqtsq-uc.a.run.app",
+  getUser: "https://getuser-5dxkydqtsq-uc.a.run.app",
+  verifyContact: "https://verifycontact-5dxkydqtsq-uc.a.run.app",
+  checkin: "https://us-central1-call-3ba0f.cloudfunctions.net/checkin"
+};
+
 
 // 產生 UUID
 function generateUUID() {
@@ -29,7 +35,8 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
   document.getElementById("form-section").innerHTML = '<div class="status-box">⏳ 請稍候...</div>';
   const newId = generateUUID();
 
-  const res = await fetch(`${API_BASE}/createUser`, {
+  const res = await fetch(API.createUser, {
+
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -50,7 +57,7 @@ document.getElementById("submitBtn").addEventListener("click", async () => {
 });
 
 async function loadStatus(uid) {
-  const res = await fetch(`${API_BASE}/getUser?userId=${uid}`);
+  const res = await fetch(`${API.getUser}?userId=${uid}`);
   const data = await res.json();
 
   document.getElementById("form-section").classList.add("hidden");
@@ -59,6 +66,8 @@ async function loadStatus(uid) {
   const statusText = document.getElementById("statusText");
   const checkinArea = document.getElementById("checkinArea");
 
+  document.getElementById("用戶name").innerHTML = `<div class="status-box">${data.name}</div>`
+  
   if (!data.verified && !data.is_active) {
     statusText.innerHTML = `🔒 已通知聯絡人 ${data.contact_email} ，請付費啟用`;
     checkinArea.classList.add("hidden");
@@ -69,7 +78,66 @@ async function loadStatus(uid) {
   } 
   else if (data.verified && data.is_active) {
     statusText.innerHTML = `🟢 聯絡人 ${data.contact_email} 已成功綁定，保護已啟用`;
+
+    document.getElementById("教學").innerHTML = `<label>服務到期日:</label><div class="status-box">${data.expiry_date}</div>`
+  
     checkinArea.classList.remove("hidden");
-    document.getElementById("lastCheckin").textContent = data.last_checkin || "尚未打卡";
+    
+    // 核心修正：處理 Firebase Timestamp 物件
+    let lastCheckinText = "尚未打卡";
+    const lastCheckinObj = data.last_checkin;
+    // 判斷是否為有效的 Timestamp 物件
+    if (lastCheckinObj && typeof lastCheckinObj === 'object' && lastCheckinObj._seconds) {
+      // 透過秒數建立 Date 物件
+      const timestamp = new Date(lastCheckinObj._seconds * 1000);
+      // 格式化為香港地區的可讀時間（可根據需要調整格式）
+      lastCheckinText = timestamp.toLocaleString('zh-HK', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      });
+    }
+    document.getElementById("lastCheckin").textContent = lastCheckinText;
   }
 }
+
+
+// =======================
+// 打卡：我今天安全
+// =======================
+document.getElementById("checkinBtn").addEventListener("click", async () => {
+  const uid = localStorage.getItem("48call_user_id");
+  if (!uid) return;
+
+  try {
+    const btn = document.getElementById("checkinBtn");
+    btn.disabled = true;
+    btn.textContent = "提交中...";
+
+    const res = await fetch(API.checkin, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: uid })
+    });
+
+    const data = await res.json();
+
+    if (data.success) {
+      alert("已成功打卡，謝謝！");
+      await loadStatus(uid);   // 重新載入狀態 → 更新 lastCheckin
+    } else {
+      alert("打卡失敗：" + (data.error || "未知錯誤"));
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("打卡時發生錯誤");
+  } finally {
+    const btn = document.getElementById("checkinBtn");
+    btn.disabled = false;
+    btn.textContent = "我今天安全";
+  }
+});

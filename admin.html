@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8">
+  <title>48call Admin</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #f5f5f5; }
+    input[type="date"] { padding: 4px; }
+    button { padding: 6px 10px; cursor: pointer; }
+    .active { color: green; font-weight: bold; }
+    .inactive { color: red; font-weight: bold; }
+    #adminPanel { display: none; }
+  </style>
+
+  <!-- Firebase compat（你原本用 firebase.auth()，這組最穩定） -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+<h2>48call 管理後臺</h2>
+
+<div id="authBox">
+  <button onclick="login()">管理員登入</button>
+</div>
+
+<div id="adminPanel">
+  <p>
+    👤 目前登入管理員：<b id="adminEmail"></b>
+    <button onclick="logout()">登出</button>
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>用戶姓名</th>
+        <th>聯絡人 Email</th>
+        <th>上次打卡</th>
+        <th>到期日</th>
+        <th>狀態</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="userTable"></tbody>
+  </table>
+</div>
+
+<script>
+/* =======================
+   Firebase 初始化
+======================= */
+const firebaseConfig = {
+  apiKey: "AIzaSyA8eWS7fwj5eyzK21YlFRov1n4oIVmmkHY",
+  authDomain: "call-3ba0f.firebaseapp.com",
+  projectId: "call-3ba0f",
+  storageBucket: "call-3ba0f.firebasestorage.app",
+  messagingSenderId: "157503642050",
+  appId: "1:157503642050:web:8687d0340afa95cc85de5b",
+  measurementId: "G-Y6BEGYPW7R"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+/* =======================
+   全域變數
+======================= */
+let idToken = null;
+const API = "https://us-central1-call-3ba0f.cloudfunctions.net";
+
+/* =======================
+   登入
+======================= */
+async function login() {
+  try {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    const result = await auth.signInWithPopup(provider);
+
+    const user = result.user;
+    idToken = await user.getIdToken(true);
+
+    // 取得 claims
+    const tokenResult = await user.getIdTokenResult(true);
+    console.log("是否為管理員:", tokenResult.claims.admin);
+
+    if (!tokenResult.claims.admin) {
+      alert("❌ 此帳號不是管理員");
+      await auth.signOut();
+      return;
+    }
+
+    // 顯示後台
+    document.getElementById("authBox").style.display = "none";
+    document.getElementById("adminPanel").style.display = "block";
+    document.getElementById("adminEmail").innerText = user.email;
+
+    // 載入資料
+    loadUsers();
+  } catch (err) {
+    console.error(err);
+    alert("登入失敗");
+  }
+}
+
+/* =======================
+   登出
+======================= */
+async function logout() {
+  await auth.signOut();
+  idToken = null;
+  document.getElementById("authBox").style.display = "block";
+  document.getElementById("adminPanel").style.display = "none";
+  document.getElementById("userTable").innerHTML = "";
+}
+
+/* =======================
+   載入用戶列表
+======================= */
+async function loadUsers() {
+  const res = await fetch(`${API}/adminList`, {
+    headers: { "Authorization": "Bearer " + idToken }
+  });
+
+  const data = await res.json();
+  if (!data.success) {
+    alert("讀取失敗");
+    return;
+  }
+
+  const tbody = document.getElementById("userTable");
+  tbody.innerHTML = "";
+
+  data.users.forEach(u => {
+    // ===== 新增调试：打印真实拿到的时间值 =====
+    //console.log("用户：", u.name, "last_checkin原始值：", u.last_checkin, "类型：", typeof u.last_checkin);
+    // ==========================================
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${u.name || "-"}</td>
+      <td>${u.contact_email || "-"}</td>
+      <td>${formatTimestamp(u.last_checkin)}</td>
+      <td>
+        <input type="date" value="${u.expiry_date || ""}" 
+               onchange="setExpiry('${u.userId}', this.value)">
+      </td>
+      <td class="${u.is_active ? 'active' : 'inactive'}">
+        ${u.is_active ? "啟用中" : "已停用"}
+      </td>
+      <td>
+        <button onclick="toggleUser('${u.userId}', ${!u.is_active})">
+          ${u.is_active ? "停用" : "啟用"}
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+
+
+
+
+
+/* =======================
+   啟用 / 停用
+======================= */
+async function toggleUser(userId, status) {
+  await fetch(`${API}/adminToggle`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + idToken
+    },
+    body: JSON.stringify({ userId, is_active: status })
+  });
+  loadUsers();
+}
+
+/* =======================
+   設定到期日
+======================= */
+async function setExpiry(userId, date) {
+  await fetch(`${API}/adminSetExpiry`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + idToken
+    },
+    body: JSON.stringify({ userId, expiry_date: date })
+  });
+}
+
+
+
+
+
+
+/* =======================
+   時間格式化函數（修复版）
+======================= */
+function formatTimestamp(ts) {
+  if (!ts) return "尚未打卡";
+
+  // 兼容 Firestore Timestamp 两种写法：seconds / _seconds
+  const seconds = ts.seconds || ts._seconds;
+  if (seconds) {
+    const date = new Date(seconds * 1000);
+    // 补充纳秒级精度（可选，不影响显示）
+    date.setMilliseconds(ts.nanoseconds || ts._nanoseconds || 0);
+    return date.toLocaleString("zh-HK");
+  }
+
+  // 字符串格式（如带时区的文本）
+  if (typeof ts === "string") return ts;
+
+  return "尚未打卡";
+}
+
+
+
+</script>
+
+</body>
+</html>
