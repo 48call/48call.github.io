@@ -2,6 +2,14 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="https://kit.fontawesome.com/fd27287143.js" crossorigin="anonymous">//抖音,threads icon</script>
+    <script src="https://cdn.staticfile.net/translate.js/3.1.7/translate.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://64071181.github.io/mokJsapi/a.js">//琪琪修改</script>
+
+
   <title>緊急聯絡人設定 48call</title>
   <link rel="stylesheet" href="style.css">
 
@@ -30,8 +38,48 @@
 </script>
 
 </head>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <body>
+  <p id="translate"></p>
+
+
+  
   <div class="container">
+    <br>
     <h1 id="用戶name" >設定緊急聯絡人</h1>
 
     <div id="form-section">
@@ -57,14 +105,60 @@
     <!-- 流程教學 -->
     <div id="教學" class="steps">
       <hr>
+      <h1>3步設定，簡單安心。</h1>
       <div class="step">1. 填寫資料</div>
       🔽
       <div class="step">2. 付費啟用</div>
       🔽
       <div class="step">3. 每日簽到</div>
     </div>
+    <br>
   </div>
+
+
+
+
+
+
+    <div id="ContactAKI" class="ContactAKI"><!-- JS _顯示聯莫 --></div>
+    <div class="copyright">
+        <p class="mokJsApi_copyright">版權</p>
+    </div>
+    <div class="scroll-top" id="scrollTop" style="background: #ccc;bottom: 40%;" onclick="scrollToTop()">↑</div>
+
+
 
   <script src="app.js"></script>
 </body>
 </html>
+<script>
+
+
+/*
+          :::        :::    :::       :::::::::::
+       :+: :+:      :+:   :+:            :+:
+     +:+   +:+     +:+  +:+             +:+
+   +#++:++#++:    +#++:++              +#+
+  +#+     +#+    +#+  +#+             +#+
+ #+#     #+#    #+#   #+#            #+#
+###     ###    ###    ###       ###########
+*/
+
+        // 動態內容自動翻譯小函數
+        function callTranslate() {
+          if (window.translate && typeof translate.execute === 'function') {
+            translate.execute();
+          }
+        }
+        translate.service.use('client.edge'); //設置機器翻譯服務通道，直接客戶端本身，不依賴服務端 。相關說明參考 http://translate.zvo.cn/43086.html
+        translate.execute();//進行翻譯 
+        function Start() {
+            // 顯示聯莫
+            //[mail,whatsapp,WechatQR,instagram,line,facebook,telegram,github,小紅書,抖音,threads,youtube]
+            const 聯莫 = ['moksurky@gmail.com','https://wa.me/85264071181/','https://i.meee.com.tw/4xTmYL9.jpeg','','','','','','','','',''
+            ];
+            _顯示聯莫(聯莫);
+        }
+        琪琪修改('https://64071181.github.io/')
+
+</script>

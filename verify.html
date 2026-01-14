@@ -2,21 +2,94 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <script src="https://kit.fontawesome.com/fd27287143.js" crossorigin="anonymous">//抖音,threads icon</script>
+    <script src="https://cdn.staticfile.net/translate.js/3.1.7/translate.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+    <script src="https://64071181.github.io/mokJsapi/a.js">//琪琪修改</script>
+
   <title>緊急聯絡人驗證</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <body>
+
+
+  <p id="translate"></p>
+
+
+  
   <div class="container">
+    <br>
     <h1>緊急聯絡人驗證 48call</h1>
     <p id="status">正在驗證中，請稍候...</p>
 
     <div class="footer">
       此服務並非緊急或醫療系統，如有即時危險請聯絡當地緊急電話。
     </div>
+    <br>
   </div>
 
+
+
+
+
+
+    <div id="ContactAKI" class="ContactAKI"><!-- JS _顯示聯莫 --></div>
+    <div class="copyright">
+        <p class="mokJsApi_copyright">版權</p>
+    </div>
+    <div class="scroll-top" id="scrollTop" style="background: #ccc;bottom: 40%;" onclick="scrollToTop()">↑</div>
+
+
   <script>
+
+
+
+/*
+          :::        :::    :::       :::::::::::
+       :+: :+:      :+:   :+:            :+:
+     +:+   +:+     +:+  +:+             +:+
+   +#++:++#++:    +#++:++              +#+
+  +#+     +#+    +#+  +#+             +#+
+ #+#     #+#    #+#   #+#            #+#
+###     ###    ###    ###       ###########
+*/
+
+        // 動態內容自動翻譯小函數
+        function callTranslate() {
+          if (window.translate && typeof translate.execute === 'function') {
+            translate.execute();
+          }
+        }
+        translate.service.use('client.edge'); //設置機器翻譯服務通道，直接客戶端本身，不依賴服務端 。相關說明參考 http://translate.zvo.cn/43086.html
+        translate.execute();//進行翻譯 
+        function Start() {
+            // 顯示聯莫
+            //[mail,whatsapp,WechatQR,instagram,line,facebook,telegram,github,小紅書,抖音,threads,youtube]
+            const 聯莫 = ['moksurky@gmail.com','https://wa.me/85264071181/','https://i.meee.com.tw/4xTmYL9.jpeg','','','','','','','','',''
+            ];
+            _顯示聯莫(聯莫);
+        }
+        琪琪修改('https://64071181.github.io/')
+
+
+
+
     const API_BASE = "https://us-central1-call-3ba0f.cloudfunctions.net";
 
     // 取得網址參數 ?uid=xxxx
