@@ -186,7 +186,8 @@ async function loadUsers() {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td>${u.name || "-"}</td>
-      <td>${u.contact_email || "-"}</td>
+      <td class="${u.verified ? 'active' : 'inactive'}">
+        ${u.contact_email || "-"}</td>
       <td>${formatTimestamp(u.last_checkin)}</td>
       <td>
         <input type="date" value="${u.expiry_date || ""}" 

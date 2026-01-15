@@ -76,6 +76,7 @@ async function loadStatus(uid) {
     statusText.innerHTML = `<span class="success">🔒 聯絡人  ${data.contact_email} 已成功綁定</span>，請付費啟用`;
     checkinArea.classList.add("hidden");
   } 
+
   else if (data.verified && data.is_active) {
     statusText.innerHTML = `🟢 聯絡人 ${data.contact_email} 已成功綁定，保護已啟用`;
 
