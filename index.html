@@ -109,7 +109,7 @@
         <button id="checkinBtn">我今天安全</button>
 
         <!-- 🔔 啟用推播提醒 -->
-        <button id="pushBtn" class="hidden" onclick="enablePush()">
+        <button id="pushBtn" class="hidden" onclick="enablePush(localStorage.getItem('48call_user_id'))">
           🔔 啟用每日提醒
         </button>
 

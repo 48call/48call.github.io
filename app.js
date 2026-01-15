@@ -173,30 +173,57 @@ if ("serviceWorker" in navigator) {
 }
 
 async function enablePush(uid) {
+  // 新增：驗證 uid 是否存在
+  if (!uid) {
+    alert("用戶 ID 不存在，請重新載入頁面");
+    console.error("enablePush error: uid is empty");
+    return;
+  }
+
   if (!("serviceWorker" in navigator)) {
     alert("瀏覽器不支援推播");
+    console.error("enablePush error: serviceWorker not supported");
     return;
   }
 
-  const permission = await Notification.requestPermission();
-  if (permission !== "granted") {
-    alert("你未允許通知，將無法接收每日提醒");
-    return;
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      alert("你未允許通知，將無法接收每日提醒");
+      console.log("enablePush: notification permission denied");
+      return;
+    }
+
+    const registration = await navigator.serviceWorker.ready;
+    const subscription = await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: "BGmJhnht5Yb8p8vXKLCnkeMKh104P0UssEWBz3vR9rPjAhqwhEsKurE_zvGqmt-oHUrh_Sd321wiP9CEq5O_tCM"
+    });
+
+    // 新增：打印訂閱信息到控制台
+    console.log("Push subscription created:", subscription);
+
+    // 發送訂閱信息到後端
+    const res = await fetch(`${API_BASE}/savePushSubscription`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId: uid, subscription })
+    });
+
+    // 新增：驗證請求是否成功
+    if (!res.ok) {
+      throw new Error(`HTTP error! status: ${res.status}`);
+    }
+
+    const responseData = await res.json();
+    console.log("savePushSubscription response:", responseData);
+
+    alert("已啟用每日打卡提醒");
+  } catch (err) {
+    // 新增：捕獲所有錯誤並提示
+    alert("啟用推播失敗：" + err.message);
+    console.error("enablePush error:", err);
   }
-
-  const registration = await navigator.serviceWorker.ready;
-  const subscription = await registration.pushManager.subscribe({
-    userVisibleOnly: true,
-    applicationServerKey: "BGmJhnht5Yb8p8vXKLCnkeMKh104P0UssEWBz3vR9rPjAhqwhEsKurE_zvGqmt-oHUrh_Sd321wiP9CEq5O_tCM"
-  });
-
-  await fetch(`${API_BASE}/savePushSubscription`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId: uid, subscription })
-  });
-
-  alert("已啟用每日打卡提醒");
 }
 
 // =======================
