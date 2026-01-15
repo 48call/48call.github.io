@@ -86,8 +86,15 @@ async function loadStatus(uid) {
     document.getElementById("lastCheckin").textContent = data.last_checkin || "尚未打卡";
     
     // 🔔 顯示啟用推播按鈕
-    document.getElementById("pushBtn").classList.remove("hidden");
-    
+    //document.getElementById("pushBtn").classList.remove("hidden");
+    // 🔥 核心修改：根据 pushEnabled 状态控制按钮显示
+    if (data.pushEnabled) {
+      pushBtn.classList.add("hidden"); // 已启用 → 隐藏按钮
+    } else {
+      pushBtn.classList.remove("hidden"); // 未启用 → 显示按钮
+    }
+
+
     // 核心修正：處理 Firebase Timestamp 物件
     let lastCheckinText = "尚未打卡";
     const lastCheckinObj = data.last_checkin;
@@ -219,6 +226,8 @@ async function enablePush(uid) {
     console.log("savePushSubscription response:", responseData);
 
     alert("已啟用每日打卡提醒");
+    // 🔥 新增：重新加载用户状态 → 自动隐藏按钮
+    await loadStatus(uid);
   } catch (err) {
     // 新增：捕獲所有錯誤並提示
     alert("啟用推播失敗：" + err.message);
