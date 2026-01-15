@@ -37,6 +37,14 @@
   const analytics = getAnalytics(app);
 </script>
 
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#111111">
+
+<!-- 基础 favicon 图标 -->
+    <link rel="icon" href="/icon-192.png" type="image/x-icon">
+    <!-- 可选：兼容旧版浏览器 -->
+    <link rel="shortcut icon" href="/icon-192.png" type="image/x-icon">
+
 </head>
 
 
@@ -99,6 +107,22 @@
       <div id="checkinArea" class="hidden">
         <p>上次打卡時間：<span id="lastCheckin">--</span></p>
         <button id="checkinBtn">我今天安全</button>
+
+        <!-- 🔔 啟用推播提醒 -->
+        <button id="pushBtn" class="hidden" onclick="enablePush()">
+          🔔 啟用每日提醒
+        </button>
+
+        <!-- 📱 iPhone 加入主畫面提示 -->
+        <div id="ios-install-banner" class="hidden" style="margin:10px 0; padding:12px; background:#fff3cd; border:1px solid #ffeeba; border-radius:6px;">
+          <b>📱 iPhone 使用者請注意</b><br>
+          要接收每日提醒，請先將本網站加入主畫面：<br>
+          <span>點擊 Safari 下方「分享」→「加入主畫面」</span>
+        </div>
+
+
+
+
       </div>
     </div>
 

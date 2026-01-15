@@ -82,6 +82,10 @@ async function loadStatus(uid) {
     document.getElementById("教學").innerHTML = `<label>服務到期日:</label><div class="status-box">${data.expiry_date}</div>`
   
     checkinArea.classList.remove("hidden");
+    document.getElementById("lastCheckin").textContent = data.last_checkin || "尚未打卡";
+    
+    // 🔔 顯示啟用推播按鈕
+    document.getElementById("pushBtn").classList.remove("hidden");
     
     // 核心修正：處理 Firebase Timestamp 物件
     let lastCheckinText = "尚未打卡";
@@ -140,4 +144,76 @@ document.getElementById("checkinBtn").addEventListener("click", async () => {
     btn.disabled = false;
     btn.textContent = "我今天安全";
   }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// =======================
+// 推播
+// =======================
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker.js")
+    .then(() => console.log("Service Worker 已註冊"))
+    .catch(err => console.error("SW 註冊失敗", err));
+}
+
+async function enablePush(uid) {
+  if (!("serviceWorker" in navigator)) {
+    alert("瀏覽器不支援推播");
+    return;
+  }
+
+  const permission = await Notification.requestPermission();
+  if (permission !== "granted") {
+    alert("你未允許通知，將無法接收每日提醒");
+    return;
+  }
+
+  const registration = await navigator.serviceWorker.ready;
+  const subscription = await registration.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: "BGmJhnht5Yb8p8vXKLCnkeMKh104P0UssEWBz3vR9rPjAhqwhEsKurE_zvGqmt-oHUrh_Sd321wiP9CEq5O_tCM"
+  });
+
+  await fetch(`${API_BASE}/savePushSubscription`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ userId: uid, subscription })
+  });
+
+  alert("已啟用每日打卡提醒");
+}
+
+// =======================
+// iPhone：是否已加入主畫面 檢查
+// =======================
+function checkIOSInstall() {
+  const isIOS = /iphone|ipad|ipod/i.test(window.navigator.userAgent);
+  const isInStandalone = window.navigator.standalone === true;
+
+  const banner = document.getElementById("ios-install-banner");
+
+  if (isIOS && !isInStandalone) {
+    // iPhone + 尚未加入主畫面 → 顯示提示
+    banner.classList.remove("hidden");
+  } else {
+    banner.classList.add("hidden");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  checkIOSInstall();
 });
