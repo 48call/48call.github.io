@@ -165,6 +165,7 @@ document.getElementById("checkinBtn").addEventListener("click", async () => {
 // =======================
 // 推播
 // =======================
+const API_BASE = "https://us-central1-call-3ba0f.cloudfunctions.net";
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("/service-worker.js")
     .then(() => console.log("Service Worker 已註冊"))
